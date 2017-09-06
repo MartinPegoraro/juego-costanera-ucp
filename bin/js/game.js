@@ -1,5 +1,5 @@
 /// <reference path="../tsDefinitions/phaser.d.ts" />
-var Costanera = (function () {
+var Costanera = /** @class */ (function () {
     function Costanera(ancho, alto) {
         // create our phaser game
         // 800 - width
@@ -27,5 +27,5 @@ var Costanera = (function () {
 }());
 // when the page has finished loading, create our game
 window.onload = function () {
-    var game = new Costanera(1350, 550);
+    var game = new Costanera(window.innerWidth, window.innerHeight);
 };
