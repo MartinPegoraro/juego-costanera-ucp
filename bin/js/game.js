@@ -7,7 +7,7 @@ var Costanera = /** @class */ (function () {
         // Phaser.AUTO - determine the renderer automatically (canvas, webgl)
         // 'content' - the name of the container to add our game to
         // { preload:this.preload, create:this.create} - functions to call for our states
-        this.setGame(new Phaser.Game(ancho, alto, Phaser.CENTER, 'content', {
+        this.setGame(new Phaser.Game(ancho, alto, Phaser.CANVAS, 'content', {
             preload: this.preload,
             create: this.create,
             update: this.update,
@@ -110,20 +110,23 @@ var Costanera = /** @class */ (function () {
         logo.y = 0;
         logo.height = this.getGame().height;
         logo.width = this.getGame().width;
+        this.getGame().physics.startSystem(Phaser.Physics.ARCADE);
+        this.getGame().physics.arcade.gravity.y = 250;
         var personaje = this.getGame().add.sprite(100, 200, 'player');
         personaje.height = 150;
         personaje.width = 75;
         this.setPersonaje(personaje);
-        this.getGame().physics.arcade.enable(this.getPersonaje());
+        this.getGame().physics.enable(this.getPersonaje(), Phaser.Physics.ARCADE);
         this.getPersonaje().body.collideWorldBounds = true;
         this.getPersonaje().body.gravity.y = 500;
         this.setCursores(this.getGame().input.keyboard.createCursorKeys());
         this.setSaltarBtn(this.getGame().input.keyboard.addKey(Phaser.Keyboard.SPACEBAR));
         //obstaculo
-        var obstaculo = this.getGame().add.sprite(300, 50, 'obstaculo');
+        var obstaculo = this.getGame().add.sprite(null, null, 'obstaculo');
         this.setObstaculo(obstaculo);
         obstaculo.name = 'obstaculo';
-        this.getGame().physics.enable(obstaculo, Phaser.Physics.ARCADE);
+        //this.getObstaculo().body.gravity.y = 500;
+        this.getGame().physics.enable(this.getObstaculo(), Phaser.Physics.ARCADE);
         logo.inputEnabled = true;
         logo.events.onInputDown.add(this.listener, this);
         //this.getObstaculo().body.velocity.y = 10;

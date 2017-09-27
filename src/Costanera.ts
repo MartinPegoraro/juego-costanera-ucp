@@ -1,12 +1,15 @@
 /// <reference path="../tsDefinitions/phaser.d.ts" />
 
-class Costanera
+import {Personaje} from './Personaje'
+import {Beer} from './Beer'
+
+export class Costanera
 {
 	game:Phaser.Game;
 	ancho: number;
 	alto:number;
-	personaje: Phaser.Sprite;
-	obstaculo: Phaser.Sprite;
+	personaje: Personaje;
+	beer: Beer;
 	cursores:Phaser.CursorKeys;
 	saltarBtn:Phaser.Key;
 	doblesalto:number;
@@ -38,11 +41,11 @@ class Costanera
 		return this.alto;
 	}
 
-	setPersonaje(personaje: Phaser.Sprite ){
+	setPersonaje(personaje: Personaje ){
 		this.personaje = personaje;
 	}
 
-	getPersonaje (){
+	getPersonaje ():Personaje{
 		return this.personaje;
 	}
 
@@ -68,12 +71,12 @@ class Costanera
 	setDobleSalto(valor){
 		this.doblesalto=valor;
 	}
-	setObstaculo(value: Phaser.Sprite ){
-		this.obstaculo = value;
-	}
+	setBeer(value:Beer){
+		this.beer = value;
+	 }
 
-	getObstaculo (){
-		return this.obstaculo;
+	getBeer ():Beer{
+		return this.beer;
 	}
 	
 	setEmitter(value: Phaser.Particles.Arcade.Emitter){
@@ -93,7 +96,7 @@ class Costanera
 		// Phaser.AUTO - determine the renderer automatically (canvas, webgl)
 		// 'content' - the name of the container to add our game to
 		// { preload:this.preload, create:this.create} - functions to call for our states
-		this.setGame(new Phaser.Game( ancho, alto, Phaser.CENTER, 'content', { 
+		this.setGame(new Phaser.Game( ancho, alto, Phaser.CANVAS, 'content', { 
 			preload:this.preload, 
 			create:this.create, 
 			update: this.update,
@@ -103,8 +106,8 @@ class Costanera
 			getAncho: this.getAncho,
 			setAlto: this.setAlto,
 			getAlto: this.getAlto,
-			setObstaculo: this.setObstaculo,
-			getObstaculo: this.getObstaculo,
+			setBeer: this.setBeer,
+			getBeer: this.getBeer,
 			setPersonaje: this.setPersonaje,
 			getPersonaje: this.getPersonaje,
 			setCursores: this.setCursores,
@@ -125,7 +128,7 @@ class Costanera
 		// add our logo image to the assets class under the
 		// key 'logo'. We're also setting the background colour
 		// so it's the same as the background colour in the image
-		this.getGame().load.image('obstaculo', 'assets/birra.png');
+		this.getGame().load.image('beer', 'assets/birra.png');
 		this.getGame().load.image('player', 'assets/homero2.png');
 		this.getGame().load.image( 'costanera', "assets/costanera.jpg" );
 		
@@ -149,24 +152,30 @@ class Costanera
 		logo.height = this.getGame().height;
 		logo.width = this.getGame().width;
 
+		this.getGame().physics.startSystem(Phaser.Physics.ARCADE);
+		this.getGame().physics.arcade.gravity.y = 250;
+
 		var personaje = this.getGame().add.sprite(100, 200, 'player');
 		personaje.height = 150;
 		personaje.width = 75;
 		this.setPersonaje(personaje);
 		
-		this.getGame().physics.arcade.enable(this.getPersonaje());
+		this.getGame().physics.enable(this.getPersonaje(),Phaser.Physics.ARCADE);
 		
 		this.getPersonaje().body.collideWorldBounds = true;
 		this.getPersonaje().body.gravity.y = 500;
 		
 		this.setCursores(this.getGame().input.keyboard.createCursorKeys());
 		this.setSaltarBtn(this.getGame().input.keyboard.addKey(Phaser.Keyboard.SPACEBAR));
-	//obstaculo
-	var obstaculo = this.getGame().add.sprite(300, 50, 'obstaculo');
-	this.setObstaculo(obstaculo);
-	obstaculo.name = 'obstaculo';
+	//Cerveza
+		this.setBeer(this.getGame().add.sprite(300, 50, 'beer'));
+		this.getBeer().name = 'beer';
+	//this.getObstaculo().body.gravity.y = 500;
 	
-	this.getGame().physics.enable(obstaculo, Phaser.Physics.ARCADE);
+	
+	
+	this.getGame().physics.enable(this.getBeer(),Phaser.Physics.ARCADE);
+	
 	logo.inputEnabled = true;
 	logo.events.onInputDown.add(this.listener, this);
 	//this.getObstaculo().body.velocity.y = 10;
@@ -174,14 +183,14 @@ class Costanera
 	//  This adjusts the collision body size.
 	//  220x10 is the new width/height.
 	//  See the offset bounding box for another example.
-	this.getObstaculo().body.setSize(10, 10, 0, 0);
+	this.getBeer().body.setSize(10, 10, 0, 0);
 	
 	//emitter
 	var emitter = this.getGame().add.emitter(this.getGame().world.centerX, 5, 5);
 	this.setEmitter(emitter);
 	this.getEmitter().width = this.getGame().world.width;
 	
-	this.getEmitter().makeParticles('obstaculo',null,1,true);
+	this.getEmitter().makeParticles('beer',null,1,true);
 	// emitter.minParticleScale = 0.1;
 	// emitter.maxParticleScale = 0.5;
 	
@@ -197,7 +206,7 @@ class Costanera
 		
 			// this.game.physics.arcade.collide(this.player, platforms);
 		
-			//this.getGame().physics.arcade.collide(this.getObstaculo(), this.getPersonaje(), this.collisionHandler, null, this);
+			//this.getGame().physics.arcade.collide(this.getBeer(), this.getPersonaje(), this.collisionHandler, null, this);
  			this.getGame().physics.arcade.collide(this.getEmitter(),this.getPersonaje(),this.collisionHandler,null, this);
 			this.getPersonaje().body.velocity.x = 0;
 

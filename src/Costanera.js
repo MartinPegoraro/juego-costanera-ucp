@@ -17,12 +17,20 @@ var Costanera = /** @class */ (function () {
             getAncho: this.getAncho,
             setAlto: this.setAlto,
             getAlto: this.getAlto,
+            setObstaculo: this.setObstaculo,
+            getObstaculo: this.getObstaculo,
             setPersonaje: this.setPersonaje,
             getPersonaje: this.getPersonaje,
             setCursores: this.setCursores,
             getCursores: this.getCursores,
             setSaltarBtn: this.setSaltarBtn,
             getSaltarBtn: this.getSaltarBtn,
+            getDobleSalto: this.getDobleSalto,
+            setDobleSalto: this.setDobleSalto,
+            getEmitter: this.getEmitter,
+            setEmitter: this.setEmitter,
+            collisionHandler: this.collisionHandler,
+            listener: this.listener
         }));
     }
     //--------------------setters y getters --------------------------------------
@@ -63,16 +71,29 @@ var Costanera = /** @class */ (function () {
         return this.saltarBtn;
     };
     Costanera.prototype.getDobleSalto = function () {
-        return this.btnDoblesalto;
+        return this.doblesalto;
     };
     Costanera.prototype.setDobleSalto = function (valor) {
-        this.btnDoblesalto = valor;
+        this.doblesalto = valor;
+    };
+    Costanera.prototype.setObstaculo = function (value) {
+        this.obstaculo = value;
+    };
+    Costanera.prototype.getObstaculo = function () {
+        return this.obstaculo;
+    };
+    Costanera.prototype.setEmitter = function (value) {
+        this.emitter = value;
+    };
+    Costanera.prototype.getEmitter = function () {
+        return this.emitter;
     };
     Costanera.prototype.preload = function () {
         // add our logo image to the assets class under the
         // key 'logo'. We're also setting the background colour
         // so it's the same as the background colour in the image
-        this.getGame().load.image('player', 'assets/homero.png');
+        this.getGame().load.image('obstaculo', 'assets/birra.png');
+        this.getGame().load.image('player', 'assets/homero2.png');
         this.getGame().load.image('costanera', "assets/costanera.jpg");
         //Agregamos un comentario para probar subir cambios a GIT desde el editor
         //hacemos un cambio en el archivo
@@ -98,19 +119,65 @@ var Costanera = /** @class */ (function () {
         this.getPersonaje().body.gravity.y = 500;
         this.setCursores(this.getGame().input.keyboard.createCursorKeys());
         this.setSaltarBtn(this.getGame().input.keyboard.addKey(Phaser.Keyboard.SPACEBAR));
+        //obstaculo
+        var obstaculo = this.getGame().add.sprite(300, 50, 'obstaculo');
+        this.setObstaculo(obstaculo);
+        obstaculo.name = 'obstaculo';
+        //this.getGame().physics.enable(obstaculo, Phaser.Physics.ARCADE);
+        logo.inputEnabled = true;
+        logo.events.onInputDown.add(this.listener, this);
+        //this.getObstaculo().body.velocity.y = 10;
+        //  This adjusts the collision body size.
+        //  220x10 is the new width/height.
+        //  See the offset bounding box for another example.
+        this.getObstaculo().body.setSize(10, 10, 0, 0);
+        //emitter
+        var emitter = this.getGame().add.emitter(this.getGame().world.centerX, 5, 5);
+        this.setEmitter(emitter);
+        this.getEmitter().width = this.getGame().world.width;
+        this.getEmitter().makeParticles('obstaculo', null, 1, true);
+        // emitter.minParticleScale = 0.1;
+        // emitter.maxParticleScale = 0.5;
+        this.getEmitter().setYSpeed(100, 200);
+        this.getEmitter().setXSpeed(-5, 5);
+        this.getEmitter().start(false, 1600, 1, 0);
     };
     Costanera.prototype.update = function () {
         // this.game.physics.arcade.collide(this.player, platforms);
+        //this.getGame().physics.arcade.collide(this.getObstaculo(), this.getPersonaje(), this.collisionHandler, null, this);
+        this.getGame().physics.arcade.collide(this.getEmitter(), this.getPersonaje(), this.collisionHandler, null, this);
         this.getPersonaje().body.velocity.x = 0;
         if (this.getCursores().left.isDown) {
-            this.getPersonaje().body.velocity.x = -250;
+            this.getPersonaje().body.velocity.x = -500;
         }
         else if (this.getCursores().right.isDown) {
-            this.getPersonaje().body.velocity.x = 250;
+            this.getPersonaje().body.velocity.x = 500;
         }
         if (this.getSaltarBtn().isDown && (this.getPersonaje().body.onFloor() || this.getPersonaje().body.touching.down)) {
             this.getPersonaje().body.velocity.y = -400;
         }
+        if (this.getSaltarBtn().isDown && this.getPersonaje().body.onFloor()) {
+            this.getPersonaje().body.velocity.y = -400;
+            this.setDobleSalto(1);
+            this.getSaltarBtn().isDown = false;
+            console.log(this.getSaltarBtn(), "Primer Salto");
+        }
+        if (this.getSaltarBtn().isDown && this.getDobleSalto() == 1) {
+            this.getPersonaje().body.velocity.y = -400;
+            this.setDobleSalto(2);
+            this.getSaltarBtn().isDown = false;
+            console.log(this.getDobleSalto, "Segundo salto");
+        }
+    };
+    Costanera.prototype.collisionHandler = function (objetos, personaje) {
+        // this.getGame().stage.backgroundColor = '#992d2d';
+        // this.getPersonaje().body.velocity.y = -800;
+        objetos.kill();
+        personaje.kill();
+        personaje.revive();
+    };
+    Costanera.prototype.listener = function () {
+        this.getPersonaje().revive();
     };
     return Costanera;
 }());
