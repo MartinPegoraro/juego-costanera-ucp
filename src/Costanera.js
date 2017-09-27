@@ -1,4 +1,6 @@
+"use strict";
 /// <reference path="../tsDefinitions/phaser.d.ts" />
+Object.defineProperty(exports, "__esModule", { value: true });
 var Costanera = /** @class */ (function () {
     function Costanera(ancho, alto) {
         // create our phaser game
@@ -7,7 +9,7 @@ var Costanera = /** @class */ (function () {
         // Phaser.AUTO - determine the renderer automatically (canvas, webgl)
         // 'content' - the name of the container to add our game to
         // { preload:this.preload, create:this.create} - functions to call for our states
-        this.setGame(new Phaser.Game(ancho, alto, Phaser.CENTER, 'content', {
+        this.setGame(new Phaser.Game(ancho, alto, Phaser.CANVAS, 'content', {
             preload: this.preload,
             create: this.create,
             update: this.update,
@@ -17,8 +19,8 @@ var Costanera = /** @class */ (function () {
             getAncho: this.getAncho,
             setAlto: this.setAlto,
             getAlto: this.getAlto,
-            setObstaculo: this.setObstaculo,
-            getObstaculo: this.getObstaculo,
+            setBeer: this.setBeer,
+            getBeer: this.getBeer,
             setPersonaje: this.setPersonaje,
             getPersonaje: this.getPersonaje,
             setCursores: this.setCursores,
@@ -76,11 +78,11 @@ var Costanera = /** @class */ (function () {
     Costanera.prototype.setDobleSalto = function (valor) {
         this.doblesalto = valor;
     };
-    Costanera.prototype.setObstaculo = function (value) {
-        this.obstaculo = value;
+    Costanera.prototype.setBeer = function (value) {
+        this.beer = value;
     };
-    Costanera.prototype.getObstaculo = function () {
-        return this.obstaculo;
+    Costanera.prototype.getBeer = function () {
+        return this.beer;
     };
     Costanera.prototype.setEmitter = function (value) {
         this.emitter = value;
@@ -92,7 +94,7 @@ var Costanera = /** @class */ (function () {
         // add our logo image to the assets class under the
         // key 'logo'. We're also setting the background colour
         // so it's the same as the background colour in the image
-        this.getGame().load.image('obstaculo', 'assets/birra.png');
+        this.getGame().load.image('beer', 'assets/birra.png');
         this.getGame().load.image('player', 'assets/homero2.png');
         this.getGame().load.image('costanera', "assets/costanera.jpg");
         //Agregamos un comentario para probar subir cambios a GIT desde el editor
@@ -110,32 +112,34 @@ var Costanera = /** @class */ (function () {
         logo.y = 0;
         logo.height = this.getGame().height;
         logo.width = this.getGame().width;
+        this.getGame().physics.startSystem(Phaser.Physics.ARCADE);
+        this.getGame().physics.arcade.gravity.y = 250;
         var personaje = this.getGame().add.sprite(100, 200, 'player');
         personaje.height = 150;
         personaje.width = 75;
         this.setPersonaje(personaje);
-        this.getGame().physics.arcade.enable(this.getPersonaje());
+        this.getGame().physics.enable(this.getPersonaje(), Phaser.Physics.ARCADE);
         this.getPersonaje().body.collideWorldBounds = true;
         this.getPersonaje().body.gravity.y = 500;
         this.setCursores(this.getGame().input.keyboard.createCursorKeys());
         this.setSaltarBtn(this.getGame().input.keyboard.addKey(Phaser.Keyboard.SPACEBAR));
-        //obstaculo
-        var obstaculo = this.getGame().add.sprite(300, 50, 'obstaculo');
-        this.setObstaculo(obstaculo);
-        obstaculo.name = 'obstaculo';
-        //this.getGame().physics.enable(obstaculo, Phaser.Physics.ARCADE);
+        //Cerveza
+        this.setBeer(this.getGame().add.sprite(300, 50, 'beer'));
+        this.getBeer().name = 'beer';
+        //this.getObstaculo().body.gravity.y = 500;
+        this.getGame().physics.enable(this.getBeer(), Phaser.Physics.ARCADE);
         logo.inputEnabled = true;
         logo.events.onInputDown.add(this.listener, this);
         //this.getObstaculo().body.velocity.y = 10;
         //  This adjusts the collision body size.
         //  220x10 is the new width/height.
         //  See the offset bounding box for another example.
-        this.getObstaculo().body.setSize(10, 10, 0, 0);
+        this.getBeer().body.setSize(10, 10, 0, 0);
         //emitter
         var emitter = this.getGame().add.emitter(this.getGame().world.centerX, 5, 5);
         this.setEmitter(emitter);
         this.getEmitter().width = this.getGame().world.width;
-        this.getEmitter().makeParticles('obstaculo', null, 1, true);
+        this.getEmitter().makeParticles('beer', null, 1, true);
         // emitter.minParticleScale = 0.1;
         // emitter.maxParticleScale = 0.5;
         this.getEmitter().setYSpeed(100, 200);
@@ -144,7 +148,7 @@ var Costanera = /** @class */ (function () {
     };
     Costanera.prototype.update = function () {
         // this.game.physics.arcade.collide(this.player, platforms);
-        //this.getGame().physics.arcade.collide(this.getObstaculo(), this.getPersonaje(), this.collisionHandler, null, this);
+        //this.getGame().physics.arcade.collide(this.getBeer(), this.getPersonaje(), this.collisionHandler, null, this);
         this.getGame().physics.arcade.collide(this.getEmitter(), this.getPersonaje(), this.collisionHandler, null, this);
         this.getPersonaje().body.velocity.x = 0;
         if (this.getCursores().left.isDown) {
@@ -172,15 +176,15 @@ var Costanera = /** @class */ (function () {
     Costanera.prototype.collisionHandler = function (objetos, personaje) {
         // this.getGame().stage.backgroundColor = '#992d2d';
         // this.getPersonaje().body.velocity.y = -800;
-        objetos.kill();
         personaje.kill();
-        personaje.revive();
+        //objetos.kill();
     };
     Costanera.prototype.listener = function () {
         this.getPersonaje().revive();
     };
     return Costanera;
 }());
+exports.Costanera = Costanera;
 // when the page has finished loading, create our game
 window.onload = function () {
     var game = new Costanera(window.innerWidth, window.innerHeight);

@@ -1,4 +1,4 @@
-/// <reference path="../tsDefinitions/phaser.d.ts" />
+/// <reference path="C:\Users\Martin\Desktop\repositorio\juego-costanera-ucp/tsDefinitions/phaser.d.ts" />
 var Costanera = /** @class */ (function () {
     function Costanera(ancho, alto) {
         // create our phaser game

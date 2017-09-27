@@ -244,9 +244,10 @@ export class Costanera
 				
 			// this.getGame().stage.backgroundColor = '#992d2d';
 			// this.getPersonaje().body.velocity.y = -800;
-			objetos.kill();
+			
+			
 			personaje.kill();
-			personaje.revive();
+			//objetos.kill();
 					
 			}
 			
