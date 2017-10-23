@@ -1,4 +1,3 @@
-"use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -9,12 +8,15 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-Object.defineProperty(exports, "__esModule", { value: true });
-var Bonus = /** @class */ (function (_super) {
-    __extends(Bonus, _super);
-    function Bonus() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    return Bonus;
-}(Phaser.Sprite));
-exports.Bonus = Bonus;
+// import {Bonus} from './Bonus'
+var JuegoCostanera;
+(function (JuegoCostanera) {
+    var Beer = /** @class */ (function (_super) {
+        __extends(Beer, _super);
+        function Beer() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return Beer;
+    }(JuegoCostanera.Bonus));
+    JuegoCostanera.Beer = Beer;
+})(JuegoCostanera || (JuegoCostanera = {}));

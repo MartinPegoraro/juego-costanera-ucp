@@ -1,19 +1,23 @@
 /// <reference path="../tsDefinitions/phaser.d.ts" />
+/// <reference path="./Personaje.ts" />
+/// <reference path="./Beer.ts" />
+/// <reference path="./Bonus.ts" />
 
-import {Personaje} from './Personaje'
-import {Beer} from './Beer'
-
-export class Costanera
-{
+module JuegoCostanera {
+	export class Costanera{
 	game:Phaser.Game;
 	ancho: number;
 	alto:number;
 	personaje: Personaje;
 	beer: Beer;
+	bonus: Phaser.Sprite;
 	cursores:Phaser.CursorKeys;
 	saltarBtn:Phaser.Key;
 	doblesalto:number;
-	emitter: Phaser.Particles.Arcade.Emitter;
+	emitterBeer: Phaser.Particles.Arcade.Emitter;
+	emitterBonus: Phaser.Particles.Arcade.Emitter;
+	textoVidas: Phaser.Text;
+	textoPuntos: Phaser.Text;
 //--------------------setters y getters --------------------------------------
 	
 	
@@ -71,6 +75,7 @@ export class Costanera
 	setDobleSalto(valor){
 		this.doblesalto=valor;
 	}
+
 	setBeer(value:Beer){
 		this.beer = value;
 	 }
@@ -78,14 +83,56 @@ export class Costanera
 	getBeer ():Beer{
 		return this.beer;
 	}
-	
-	setEmitter(value: Phaser.Particles.Arcade.Emitter){
-						this.emitter = value
-					}
-				
-	getEmitter(){
-						return this.emitter;
+
+	setBonus(value: Phaser.Sprite){
+			this.bonus = value;
 		}
+
+	getBonus (){
+			return this.bonus;
+			}
+	
+	setEmitterBeer(value: Phaser.Particles.Arcade.Emitter){
+			this.emitterBeer = value
+		}
+
+	getEmitterBeer(){
+				return this.emitterBeer;
+			}
+
+	setEmitterBonus(value: Phaser.Particles.Arcade.Emitter){
+			this.emitterBonus = value
+		}
+
+	getEmitterBonus(){
+				return this.emitterBonus;
+			}	
+
+
+
+	getTextoPuntos(){
+		return this.textoPuntos;
+	}
+
+	setTextoPuntos(value:Phaser.Text){
+		this.textoPuntos = value;
+	}
+	
+	getTextoVidas(){
+			return this.textoVidas;
+		}
+
+	setTextoVidas(value:Phaser.Text){
+				this.textoVidas = value;
+			}
+
+	//setEmitter(value: Phaser.Particles.Arcade.Emitter){
+	//					this.emitter = value
+	//				}
+				
+	//getEmitter(){
+	//					return this.emitter;
+	//	}
 
 
 	constructor(ancho: number,alto:number)
@@ -110,16 +157,25 @@ export class Costanera
 			getBeer: this.getBeer,
 			setPersonaje: this.setPersonaje,
 			getPersonaje: this.getPersonaje,
+			setBonus: this.setBonus,
+			getBonus: this.getBonus,
 			setCursores: this.setCursores,
 			getCursores: this.getCursores,
 			setSaltarBtn: this.setSaltarBtn,
 			getSaltarBtn: this.getSaltarBtn,
 			getDobleSalto: this.getDobleSalto,
 			setDobleSalto: this.setDobleSalto,
-			getEmitter: this.getEmitter,
-			setEmitter: this.setEmitter,
-			collisionHandler: this.collisionHandler,
-			listener: this.listener
+			getEmitterBeer: this.getEmitterBeer,
+			setEmitterBeer: this.setEmitterBeer,
+			getEmitterBonus: this.getEmitterBonus,
+			setEmitterBonus: this.setEmitterBonus,
+			collisionBeer: this.collisionBeer,
+			collisionBonus: this.collisionBonus,
+			listener: this.listener,
+			getTextoPuntos: this.getTextoPuntos,
+			setTextoPuntos: this.setTextoPuntos,
+			getTextoVidas: this.getTextoVidas,
+			setTextoVidas: this.setTextoVidas
 		} ));
 	}
 	
@@ -129,6 +185,7 @@ export class Costanera
 		// key 'logo'. We're also setting the background colour
 		// so it's the same as the background colour in the image
 		this.getGame().load.image('beer', 'assets/birra.png');
+		this.getGame().load.image('bonus', 'assets/rosquilla.png');
 		this.getGame().load.image('player', 'assets/homero2.png');
 		this.getGame().load.image( 'costanera', "assets/costanera.jpg" );
 		
@@ -153,29 +210,49 @@ export class Costanera
 		logo.width = this.getGame().width;
 
 		this.getGame().physics.startSystem(Phaser.Physics.ARCADE);
+		this.getGame().time.desiredFps = 30;
 		this.getGame().physics.arcade.gravity.y = 250;
-
-		var personaje = this.getGame().add.sprite(100, 200, 'player');
+		
+		//Personaje
+		var personaje = new Personaje(this.getGame(),this.getGame().world.centerX, this.getGame().world.top, 'player');
 		personaje.height = 150;
 		personaje.width = 75;
 		this.setPersonaje(personaje);
+		this.getPersonaje().body.setSize(200, 335);
 		
 		this.getGame().physics.enable(this.getPersonaje(),Phaser.Physics.ARCADE);
 		
 		this.getPersonaje().body.collideWorldBounds = true;
 		this.getPersonaje().body.gravity.y = 500;
 		
+		//Mover
 		this.setCursores(this.getGame().input.keyboard.createCursorKeys());
 		this.setSaltarBtn(this.getGame().input.keyboard.addKey(Phaser.Keyboard.SPACEBAR));
-	//Cerveza
-		this.setBeer(this.getGame().add.sprite(300, 50, 'beer'));
-		this.getBeer().name = 'beer';
+		
+		
+	
+		//  Puntos
+		var scoreString = 'Puntos: ';
+   		var scoreText = this.getGame().add.text(10, 10, scoreString + this.getPersonaje().getPuntos(), { font: '34px Arial', fill: '#fff' });
+		this.setTextoPuntos(scoreText);
+
+		//  Vidas
+		var vidasString = 'Vidas: ';
+		var vidasText = this.getGame().add.text(this.getGame().world.width - 140, 10, vidasString + this.getPersonaje().getVidas(), { font: '34px Arial', fill: '#fff' });
+		this.setTextoVidas(vidasText);
+
+
+	
+		
+	//Cerveza	
+		var beer = this.getGame().add.sprite(300, 50, 'beer')
+		this.setBeer(beer);
+	this.getBeer().name = 'beer';
 	//this.getObstaculo().body.gravity.y = 500;
-	
-	
-	
 	this.getGame().physics.enable(this.getBeer(),Phaser.Physics.ARCADE);
-	
+	this.getBeer().body.setSize(10, 10, 0, 0);
+
+	//Click event
 	logo.inputEnabled = true;
 	logo.events.onInputDown.add(this.listener, this);
 	//this.getObstaculo().body.velocity.y = 10;
@@ -183,22 +260,37 @@ export class Costanera
 	//  This adjusts the collision body size.
 	//  220x10 is the new width/height.
 	//  See the offset bounding box for another example.
-	this.getBeer().body.setSize(10, 10, 0, 0);
 	
-	//emitter
+	
+
+
+	//emitterBeer
 	var emitter = this.getGame().add.emitter(this.getGame().world.centerX, 5, 5);
-	this.setEmitter(emitter);
-	this.getEmitter().width = this.getGame().world.width;
-	
-	this.getEmitter().makeParticles('beer',null,1,true);
+	this.setEmitterBeer(emitter);
+	this.getEmitterBeer().width = this.getGame().world.width;
+	this.getEmitterBeer().makeParticles('beer',null,1,true);
+	this.getEmitterBeer().setYSpeed(100, 200);
+	this.getEmitterBeer().setXSpeed(-5, 5);
+	this.getEmitterBeer().start(false, 1600, 1, 0);
 	// emitter.minParticleScale = 0.1;
 	// emitter.maxParticleScale = 0.5;
 	
-	this.getEmitter().setYSpeed(100, 200);
-	this.getEmitter().setXSpeed(-5, 5);
-			
-	this.getEmitter().start(false, 1600, 1, 0);
+	//emitter bonus
+	var emitter = this.getGame().add.emitter(this.getGame().world.centerX, 5, 5);
+	this.setEmitterBonus(emitter);
+	this.getEmitterBonus().width = this.getGame().world.width;
+	this.getEmitterBonus().makeParticles('bonus',null,1,true);
+	this.getEmitterBonus().setYSpeed(100, 200);
+	this.getEmitterBonus().setXSpeed(-5, 5);
+	this.getEmitterBonus().start(false, 1600, 1, 0);
 
+	//var emitterBonus = this.getGame().add.emitter(this.getGame().world.width,this.getGame().world.bottom - 100, 5);
+	//this.setEmitterBonus(emitterBonus);
+	//this.getEmitterBonus().makeParticles('bonus',null,1,true);
+	//this.getEmitterBonus().setYSpeed(-100, 0);
+	//this.getEmitterBonus().setXSpeed(-1000, -500);
+	//this.getEmitterBonus().gravity.y = -100;
+	//this.getEmitterBonus().start(false, 1600, 1, 0);
 
 	}
 
@@ -207,8 +299,11 @@ export class Costanera
 			// this.game.physics.arcade.collide(this.player, platforms);
 		
 			//this.getGame().physics.arcade.collide(this.getBeer(), this.getPersonaje(), this.collisionHandler, null, this);
- 			this.getGame().physics.arcade.collide(this.getEmitter(),this.getPersonaje(),this.collisionHandler,null, this);
+			this.getGame().physics.arcade.collide(this.getEmitterBeer(),this.getPersonaje(),this.collisionBeer,null, this);
+			this.getGame().physics.arcade.collide(this.getEmitterBonus(),this.getPersonaje(),this.collisionBonus,null, this);
+	
 			this.getPersonaje().body.velocity.x = 0;
+			
 
 
 		
@@ -238,19 +333,36 @@ export class Costanera
 			     this.getSaltarBtn().isDown = false;
 			       console.log(this.getDobleSalto, "Segundo salto");
 			    }
-		}
-	
-		collisionHandler (objetos, personaje) {
-				
-			// this.getGame().stage.backgroundColor = '#992d2d';
-			// this.getPersonaje().body.velocity.y = -800;
-			
-			
-			personaje.kill();
-			//objetos.kill();
+		
+		
+		
 					
 			}
+
 			
+		collisionBeer (beer, personaje){
+			beer.kill();
+			personaje.kill();
+
+			//  Reduce the lives
+			this.getPersonaje().setVidas(this.getPersonaje().getVidas() - 1);
+			this.getTextoVidas().text = "Vidas: " + this.getPersonaje().getVidas().toString();		
+		}
+		
+			collisionBonus (hamburguesas, personaje) 
+		{
+						 personaje.kill();
+					 //  Increase the score
+			 this.getPersonaje().setPuntos(this.getPersonaje().getPuntos() + 20);
+			 this.getTextoPuntos().text = "Puntos: " + this.getPersonaje().getPuntos().toString();		
+
+
+
+		}
+	
+ 		
+			
+
 					
 			listener () {
 				this.getPersonaje().revive()
@@ -262,7 +374,8 @@ export class Costanera
 
 
 
-// when the page has finished loading, create our game
-window.onload = () => {
-	var game = new Costanera(window.innerWidth,window.innerHeight);
+		// when the page has finished loading, create our game
+		window.onload = () => {
+		var game = new Costanera(window.innerWidth,window.innerHeight);
+		}
 }
