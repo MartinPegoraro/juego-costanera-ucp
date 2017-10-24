@@ -188,6 +188,7 @@ module JuegoCostanera {
 		this.getGame().load.image('bonus', 'assets/rosquilla.png');
 		this.getGame().load.image('player', 'assets/homero2.png');
 		this.getGame().load.image( 'costanera', "assets/costanera.jpg" );
+		this.getGame().load.image('gameover', 'assets/gameover.png');
 		
 		//Agregamos un comentario para probar subir cambios a GIT desde el editor
 		//hacemos un cambio en el archivo
@@ -214,21 +215,15 @@ module JuegoCostanera {
 		this.getGame().physics.arcade.gravity.y = 250;
 		
 		//Personaje
+		
+		
 		var personaje = new Personaje(this.getGame(),this.getGame().world.centerX, this.getGame().world.top, 'player');
-		personaje.height = 150;
-		personaje.width = 75;
 		this.setPersonaje(personaje);
-		this.getPersonaje().body.setSize(200, 335);
-		
-		this.getGame().physics.enable(this.getPersonaje(),Phaser.Physics.ARCADE);
-		
-		this.getPersonaje().body.collideWorldBounds = true;
-		this.getPersonaje().body.gravity.y = 500;
-		
+			
 		//Mover
 		this.setCursores(this.getGame().input.keyboard.createCursorKeys());
 		this.setSaltarBtn(this.getGame().input.keyboard.addKey(Phaser.Keyboard.SPACEBAR));
-		
+	
 		
 	
 		//  Puntos
@@ -269,7 +264,7 @@ module JuegoCostanera {
 	this.setEmitterBeer(emitter);
 	this.getEmitterBeer().width = this.getGame().world.width;
 	this.getEmitterBeer().makeParticles('beer',null,1,true);
-	this.getEmitterBeer().setYSpeed(100, 200);
+	this.getEmitterBeer().setYSpeed(400, 500);
 	this.getEmitterBeer().setXSpeed(-5, 5);
 	this.getEmitterBeer().start(false, 1600, 1, 0);
 	// emitter.minParticleScale = 0.1;
@@ -280,7 +275,7 @@ module JuegoCostanera {
 	this.setEmitterBonus(emitter);
 	this.getEmitterBonus().width = this.getGame().world.width;
 	this.getEmitterBonus().makeParticles('bonus',null,1,true);
-	this.getEmitterBonus().setYSpeed(100, 200);
+	this.getEmitterBonus().setYSpeed(400, 500);
 	this.getEmitterBonus().setXSpeed(-5, 5);
 	this.getEmitterBonus().start(false, 1600, 1, 0);
 
@@ -341,12 +336,17 @@ module JuegoCostanera {
 
 			
 		collisionBeer (beer, personaje){
-			beer.kill();
+			
 			personaje.kill();
 
 			//  Reduce the lives
+			if(this.getPersonaje().getVidas()> 0){
 			this.getPersonaje().setVidas(this.getPersonaje().getVidas() - 1);
 			this.getTextoVidas().text = "Vidas: " + this.getPersonaje().getVidas().toString();		
+			}else{
+				beer.kill();
+				var gameOver = this.getGame().add.sprite( this.getGame().world.centerX-400, this.getGame().world.centerY-200, 'gameover' );
+			}
 		}
 		
 			collisionBonus (hamburguesas, personaje) 
@@ -364,10 +364,7 @@ module JuegoCostanera {
 			
 
 					
-			listener () {
-				this.getPersonaje().revive()
-						
-			}
+			
 			
 
 	}
