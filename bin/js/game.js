@@ -51,9 +51,16 @@ var JuegoCostanera;
             //this.setOrientacion('left');  
             _this.setPuntos(0);
             _this.setVidas(3);
+            _this.setPBonus(0);
             game.add.existing(_this);
             return _this;
         }
+        Personaje.prototype.getPBonus = function () {
+            return this.bonus;
+        };
+        Personaje.prototype.setPBonus = function (value) {
+            this.bonus = value;
+        };
         Personaje.prototype.getPuntos = function () {
             return this.puntos;
         };
@@ -124,7 +131,6 @@ var JuegoCostanera;
                 setEmitterBonus: this.setEmitterBonus,
                 collisionBeer: this.collisionBeer,
                 collisionBonus: this.collisionBonus,
-                listener: this.listener,
                 getTextoPuntos: this.getTextoPuntos,
                 setTextoPuntos: this.setTextoPuntos,
                 getTextoVidas: this.getTextoVidas,
@@ -259,8 +265,8 @@ var JuegoCostanera;
             this.getGame().physics.enable(this.getBeer(), Phaser.Physics.ARCADE);
             this.getBeer().body.setSize(10, 10, 0, 0);
             //Click event
-            logo.inputEnabled = true;
-            logo.events.onInputDown.add(this.listener, this);
+            //logo.inputEnabled = true;
+            //logo.events.onInputDown.add(this.listener, this);
             //this.getObstaculo().body.velocity.y = 10;
             //  This adjusts the collision body size.
             //  220x10 is the new width/height.
@@ -335,10 +341,13 @@ var JuegoCostanera;
             personaje.kill();
             //  Increase the score
             this.getPersonaje().setPuntos(this.getPersonaje().getPuntos() + 20);
+            this.getPersonaje().setPBonus(this.getPersonaje().getPBonus() + 20);
             this.getTextoPuntos().text = "Puntos: " + this.getPersonaje().getPuntos().toString();
-        };
-        Costanera.prototype.listener = function () {
-            this.getPersonaje().revive();
+            if (this.getPersonaje().getPBonus() == 200) {
+                this.getPersonaje().setVidas(this.getPersonaje().getVidas() + 1);
+                this.getTextoVidas().text = "Vidas: " + this.getPersonaje().getVidas().toString();
+                this.getPersonaje().setPBonus(0);
+            }
         };
         return Costanera;
     }());

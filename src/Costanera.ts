@@ -171,7 +171,7 @@ module JuegoCostanera {
 			setEmitterBonus: this.setEmitterBonus,
 			collisionBeer: this.collisionBeer,
 			collisionBonus: this.collisionBonus,
-			listener: this.listener,
+			
 			getTextoPuntos: this.getTextoPuntos,
 			setTextoPuntos: this.setTextoPuntos,
 			getTextoVidas: this.getTextoVidas,
@@ -248,8 +248,8 @@ module JuegoCostanera {
 	this.getBeer().body.setSize(10, 10, 0, 0);
 
 	//Click event
-	logo.inputEnabled = true;
-	logo.events.onInputDown.add(this.listener, this);
+	//logo.inputEnabled = true;
+	//logo.events.onInputDown.add(this.listener, this);
 	//this.getObstaculo().body.velocity.y = 10;
 	
 	//  This adjusts the collision body size.
@@ -354,9 +354,14 @@ module JuegoCostanera {
 						 personaje.kill();
 					 //  Increase the score
 			 this.getPersonaje().setPuntos(this.getPersonaje().getPuntos() + 20);
+			 this.getPersonaje().setPBonus(this.getPersonaje().getPBonus() + 20);
 			 this.getTextoPuntos().text = "Puntos: " + this.getPersonaje().getPuntos().toString();		
 
-
+			 if(this.getPersonaje().getPBonus() == 200 ){
+				this.getPersonaje().setVidas(this.getPersonaje().getVidas() + 1);
+				this.getTextoVidas().text = "Vidas: " + this.getPersonaje().getVidas().toString();
+				this.getPersonaje().setPBonus(0);
+			}
 
 		}
 	

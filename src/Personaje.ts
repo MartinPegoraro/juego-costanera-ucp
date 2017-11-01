@@ -4,6 +4,7 @@ module JuegoCostanera{
     export class Personaje extends Phaser.Sprite{
         puntos: number;
         vidas: number;
+        bonus:number;
         //orientacion: string;
      
         constructor(game: Phaser.Game, x: number, y: number,frame: string) {
@@ -22,10 +23,18 @@ module JuegoCostanera{
                   
             this.setPuntos(0);
             this.setVidas (3);
-            
+            this.setPBonus(0);
             game.add.existing(this);
 
         }
+        getPBonus(){
+            return this.bonus;
+        }
+
+        setPBonus(value:number){
+            this.bonus = value;
+        }
+
         getPuntos(){
             return this.puntos;
         }

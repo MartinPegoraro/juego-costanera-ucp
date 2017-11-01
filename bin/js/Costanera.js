@@ -46,7 +46,6 @@ var JuegoCostanera;
                 setEmitterBonus: this.setEmitterBonus,
                 collisionBeer: this.collisionBeer,
                 collisionBonus: this.collisionBonus,
-                listener: this.listener,
                 getTextoPuntos: this.getTextoPuntos,
                 setTextoPuntos: this.setTextoPuntos,
                 getTextoVidas: this.getTextoVidas,
@@ -140,6 +139,7 @@ var JuegoCostanera;
             this.getGame().load.image('bonus', 'assets/rosquilla.png');
             this.getGame().load.image('player', 'assets/homero2.png');
             this.getGame().load.image('costanera', "assets/costanera.jpg");
+            this.getGame().load.image('gameover', 'assets/gameover.png');
             //Agregamos un comentario para probar subir cambios a GIT desde el editor
             //hacemos un cambio en el archivo
         };
@@ -160,12 +160,7 @@ var JuegoCostanera;
             this.getGame().physics.arcade.gravity.y = 250;
             //Personaje
             var personaje = new JuegoCostanera.Personaje(this.getGame(), this.getGame().world.centerX, this.getGame().world.top, 'player');
-            personaje.height = 150;
-            personaje.width = 75;
             this.setPersonaje(personaje);
-            this.getGame().physics.enable(this.getPersonaje(), Phaser.Physics.ARCADE);
-            this.getPersonaje().body.collideWorldBounds = true;
-            this.getPersonaje().body.gravity.y = 500;
             //Mover
             this.setCursores(this.getGame().input.keyboard.createCursorKeys());
             this.setSaltarBtn(this.getGame().input.keyboard.addKey(Phaser.Keyboard.SPACEBAR));
@@ -185,8 +180,8 @@ var JuegoCostanera;
             this.getGame().physics.enable(this.getBeer(), Phaser.Physics.ARCADE);
             this.getBeer().body.setSize(10, 10, 0, 0);
             //Click event
-            logo.inputEnabled = true;
-            logo.events.onInputDown.add(this.listener, this);
+            //logo.inputEnabled = true;
+            //logo.events.onInputDown.add(this.listener, this);
             //this.getObstaculo().body.velocity.y = 10;
             //  This adjusts the collision body size.
             //  220x10 is the new width/height.
@@ -196,19 +191,26 @@ var JuegoCostanera;
             this.setEmitterBeer(emitter);
             this.getEmitterBeer().width = this.getGame().world.width;
             this.getEmitterBeer().makeParticles('beer', null, 1, true);
-            this.getEmitterBeer().setYSpeed(100, 200);
+            this.getEmitterBeer().setYSpeed(400, 500);
             this.getEmitterBeer().setXSpeed(-5, 5);
             this.getEmitterBeer().start(false, 1600, 1, 0);
             // emitter.minParticleScale = 0.1;
             // emitter.maxParticleScale = 0.5;
             //emitter bonus
-            var emitterBonus = this.getGame().add.emitter(this.getGame().world.width, this.getGame().world.bottom - 100, 5);
-            this.setEmitterBonus(emitterBonus);
+            var emitter = this.getGame().add.emitter(this.getGame().world.centerX, 5, 5);
+            this.setEmitterBonus(emitter);
+            this.getEmitterBonus().width = this.getGame().world.width;
             this.getEmitterBonus().makeParticles('bonus', null, 1, true);
-            this.getEmitterBonus().setYSpeed(-100, 0);
-            this.getEmitterBonus().setXSpeed(-1000, -500);
-            this.getEmitterBonus().gravity.y = -100;
+            this.getEmitterBonus().setYSpeed(400, 500);
+            this.getEmitterBonus().setXSpeed(-5, 5);
             this.getEmitterBonus().start(false, 1600, 1, 0);
+            //var emitterBonus = this.getGame().add.emitter(this.getGame().world.width,this.getGame().world.bottom - 100, 5);
+            //this.setEmitterBonus(emitterBonus);
+            //this.getEmitterBonus().makeParticles('bonus',null,1,true);
+            //this.getEmitterBonus().setYSpeed(-100, 0);
+            //this.getEmitterBonus().setXSpeed(-1000, -500);
+            //this.getEmitterBonus().gravity.y = -100;
+            //this.getEmitterBonus().start(false, 1600, 1, 0);
         };
         Costanera.prototype.update = function () {
             // this.game.physics.arcade.collide(this.player, platforms);
@@ -218,44 +220,48 @@ var JuegoCostanera;
             this.getPersonaje().body.velocity.x = 0;
             if (this.getCursores().left.isDown) {
                 this.getPersonaje().body.velocity.x = -500;
-                if (this.getCursores().left.isDown) {
-                    this.getPersonaje().body.velocity.x = -500;
-                }
-                else if (this.getCursores().right.isDown) {
-                    this.getPersonaje().body.velocity.x = 500;
-                }
-                if (this.getSaltarBtn().isDown && (this.getPersonaje().body.onFloor() || this.getPersonaje().body.touching.down)) {
-                    this.getPersonaje().body.velocity.y = -400;
-                }
-                if (this.getSaltarBtn().isDown && this.getPersonaje().body.onFloor()) {
-                    this.getPersonaje().body.velocity.y = -400;
-                    this.setDobleSalto(1);
-                    this.getSaltarBtn().isDown = false;
-                    console.log(this.getSaltarBtn(), "Primer Salto");
-                }
-                if (this.getSaltarBtn().isDown && this.getDobleSalto() == 1) {
-                    this.getPersonaje().body.velocity.y = -400;
-                    this.setDobleSalto(2);
-                    this.getSaltarBtn().isDown = false;
-                    console.log(this.getDobleSalto, "Segundo salto");
-                }
+            }
+            else if (this.getCursores().right.isDown) {
+                this.getPersonaje().body.velocity.x = 500;
+            }
+            if (this.getSaltarBtn().isDown && (this.getPersonaje().body.onFloor() || this.getPersonaje().body.touching.down)) {
+                this.getPersonaje().body.velocity.y = -400;
+            }
+            if (this.getSaltarBtn().isDown && this.getPersonaje().body.onFloor()) {
+                this.getPersonaje().body.velocity.y = -400;
+                this.setDobleSalto(1);
+                this.getSaltarBtn().isDown = false;
+                console.log(this.getSaltarBtn(), "Primer Salto");
+            }
+            if (this.getSaltarBtn().isDown && this.getDobleSalto() == 1) {
+                this.getPersonaje().body.velocity.y = -400;
+                this.setDobleSalto(2);
+                this.getSaltarBtn().isDown = false;
+                console.log(this.getDobleSalto, "Segundo salto");
             }
         };
         Costanera.prototype.collisionBeer = function (beer, personaje) {
-            beer.kill();
             personaje.kill();
             //  Reduce the lives
-            this.getPersonaje().setVidas(this.getPersonaje().getVidas() - 1);
-            this.getTextoVidas().text = "Vidas: " + this.getPersonaje().getVidas().toString();
+            if (this.getPersonaje().getVidas() > 0) {
+                this.getPersonaje().setVidas(this.getPersonaje().getVidas() - 1);
+                this.getTextoVidas().text = "Vidas: " + this.getPersonaje().getVidas().toString();
+            }
+            else {
+                beer.kill();
+                var gameOver = this.getGame().add.sprite(this.getGame().world.centerX - 400, this.getGame().world.centerY - 200, 'gameover');
+            }
         };
         Costanera.prototype.collisionBonus = function (hamburguesas, personaje) {
             personaje.kill();
             //  Increase the score
             this.getPersonaje().setPuntos(this.getPersonaje().getPuntos() + 20);
             this.getTextoPuntos().text = "Puntos: " + this.getPersonaje().getPuntos().toString();
-        };
-        Costanera.prototype.listener = function () {
-            this.getPersonaje().revive();
+            if (this.getPersonaje().getPBonus() == 100) {
+                this.getPersonaje().setVidas(this.getPersonaje().getVidas() + 1);
+                this.getTextoVidas().text = "Vidas: " + this.getPersonaje().getVidas().toString();
+                this.getPersonaje().setPBonus(0);
+            }
         };
         return Costanera;
     }());
